@@ -1,0 +1,171 @@
+# Unless explicitly stated otherwise all files in this repository are licensed
+# under the Apache 2.0 License.
+#
+# This product includes software developed at Datadog (https://www.datadoghq.com/)
+# Copyright 2023 Datadog, Inc.
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: gke-java
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: notes-app
+  namespace: java-notes
+  labels:
+    name: notes-app-service
+    app: java-tutorial-app
+spec:
+  type: NodePort
+  ports:
+    - port: 8080
+      targetPort: 8080
+      nodePort: 30080
+  selector:
+    name: notes-app-pod
+    app: java-tutorial-app
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: notes-app-deploy
+  namespace: java-notes
+  labels:
+    name: notes-app-deploy
+    app: java-tutorial-app
+    tags.datadoghq.com/env: "gke-java"
+    tags.datadoghq.com/service: "gke-java-notes"
+    tags.datadoghq.com/version: "0.0.1"
+spec:
+  replicas: 1
+  selector: 
+    matchLabels:
+      name: notes-app-pod
+      app: java-tutorial-app
+  template:
+    metadata:
+      name: notes-app-pod
+      labels:
+        name: notes-app-pod
+        app: java-tutorial-app
+        tags.datadoghq.com/env: "gke-java"
+        tags.datadoghq.com/service: "gke-java-notes"
+        tags.datadoghq.com/version: "0.0.1"
+    spec:
+      containers:
+        - name: notes-app
+          image: kennethfoo24/notes:latest
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 8080
+          env:
+            - name: CALENDAR_HOST
+              value: calendar-app
+            - name: DD_PROFILING_ENABLED
+              value: "true"
+            - name: DD_LOGS_INJECTION
+              value: "true"
+            - name: DD_RUNTIME_METRICS_ENABLED
+              value: "true"
+            - name: DD_APPSEC_ENABLED
+              value: "true"
+            - name: DD_TRACE_DEBUG
+              value: "true"
+            - name: DD_TRACE_STARTUP_LOGS
+              value: "true"
+            - name: DD_ENV
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.labels['tags.datadoghq.com/env']
+            - name: DD_SERVICE
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.labels['tags.datadoghq.com/service']
+            - name: DD_VERSION
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.labels['tags.datadoghq.com/version']
+      restartPolicy: Always
+
+# Unless explicitly stated otherwise all files in this repository are licensed
+# under the Apache 2.0 License.
+#
+# This product includes software developed at Datadog (https://www.datadoghq.com/)
+# Copyright 2023 Datadog, Inc.
+apiVersion: v1
+kind: Service
+metadata:
+  name: calendar-app
+  labels:
+    name: calendar-app-service
+    app: java-tutorial-app
+spec:
+  type: NodePort
+  ports:
+    - port: 9090
+      targetPort: 9090
+      nodePort: 30090
+  selector:
+    name: calendar-app-pod
+    app: java-tutorial-app
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: calendar-app-deploy
+  labels:
+    name: calendar-app-deploy
+    app: java-tutorial-app
+    tags.datadoghq.com/env: "gke-java"
+    tags.datadoghq.com/service: "gke-java-calendar"
+    tags.datadoghq.com/version: "0.0.1"
+spec:
+  replicas: 1
+  selector: 
+    matchLabels:
+      name: calendar-app-pod
+      app: java-tutorial-app
+  template:
+    metadata:
+      name: calendar-app-pod
+      labels:
+        name: calendar-app-pod
+        app: java-tutorial-app
+        tags.datadoghq.com/env: "gke-java"
+        tags.datadoghq.com/service: "gke-java-calendar"
+        tags.datadoghq.com/version: "0.0.1"
+    spec:
+      containers:
+        - name: calendar-app
+          image: kennethfoo24/calendar:latest
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 9090
+          env:
+            - name: DD_PROFILING_ENABLED
+              value: "true"
+            - name: DD_LOGS_INJECTION
+              value: "true"
+            - name: DD_RUNTIME_METRICS_ENABLED
+              value: "true"
+            - name: DD_APPSEC_ENABLED
+              value: "true"
+            - name: DD_TRACE_DEBUG
+              value: "true"
+            - name: DD_TRACE_STARTUP_LOGS
+              value: "true"
+            - name: DD_ENV
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.labels['tags.datadoghq.com/env']
+            - name: DD_SERVICE
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.labels['tags.datadoghq.com/service']
+            - name: DD_VERSION
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.labels['tags.datadoghq.com/version']
+      restartPolicy: Always

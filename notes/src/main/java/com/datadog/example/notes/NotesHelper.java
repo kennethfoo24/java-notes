@@ -20,7 +20,7 @@ import io.opentracing.Tracer;
 import io.opentracing.tag.Tags;
 import io.opentracing.util.GlobalTracer;
 import java.io.PrintWriter;
-import java.io.StringWriter
+import java.io.StringWriter;
 
 
 public class NotesHelper {

@@ -39,6 +39,6 @@ jobs:
         image: ${{ env.DOCKER_REPOSITORY }}/calendar
         registry: docker.io
         tag: latest
-        dockerfile: calendar/dockerfile.notes.maven
+        dockerfile: calendar/dockerfile.calendar.maven
         username: ${{ secrets.DOCKER_USERNAME }}
         password: ${{ secrets.DOCKER_PASSWORD }}

@@ -14,16 +14,13 @@ import org.slf4j.LoggerFactory;
 
 import datadog.trace.api.Trace;
 import datadog.trace.api.DDTags;
-
 import io.opentracing.Scope;
 import io.opentracing.Span;
 import io.opentracing.Tracer;
 import io.opentracing.tag.Tags;
-
 import io.opentracing.util.GlobalTracer;
-
 import java.io.PrintWriter;
-import java.io.StringWriter;
+import java.io.StringWriter
 
 
 public class NotesHelper {
@@ -56,26 +53,24 @@ public class NotesHelper {
             .withTag(DDTags.RESOURCE_NAME, "privateMethod1")
             .start();
         try (Scope scope = tracer.activateSpan(span)) {
-            // Tags can also be set after creation 
+            // Tags can also be set after creation
             span.setTag("postCreationTag", 1);
-            
             Thread.sleep(30);
             Log.info("Hello from the custom privateMethod1");
              
         } catch (Exception e) {
-            // Set error on span
-            span.setTag(Tags.ERROR, true);
-            span.setTag(DDTags.ERROR_MSG, e.getMessage());
-            span.setTag(DDTags.ERROR_TYPE, e.getClass().getName());
-            
-            final StringWriter errorString = new StringWriter();
-            e.printStackTrace(new PrintWriter(errorString));
-            span.setTag(DDTags.ERROR_STACK, errorString.toString());
+         // Set error on span
+         span.setTag(Tags.ERROR, true);
+         span.setTag(DDTags.ERROR_MSG, e.getMessage());
+         span.setTag(DDTags.ERROR_TYPE, e.getClass().getName());
 
-            Log.info(errorString.toString());
-        } finally {
-            span.finish();
-        }
+         final StringWriter errorString = new StringWriter();
+         e.printStackTrace(new PrintWriter(errorString));
+         span.setTag(DDTags.ERROR_STACK, errorString.toString());
+         Log.info(errorString.toString());
+     } finally {
+         span.finish();
+     }
 
 
     }

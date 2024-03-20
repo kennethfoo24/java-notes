@@ -32,3 +32,13 @@ jobs:
         dockerfile: cloudrun/dockerfile.cloudrun.notes.maven
         username: ${{ secrets.DOCKER_USERNAME }}
         password: ${{ secrets.DOCKER_PASSWORD }} 
+
+    - name: Build Docker Image
+      uses: mr-smithers-excellent/docker-build-push@v4
+      with:
+        image: ${{ env.DOCKER_REPOSITORY }}/calendar
+        registry: docker.io
+        tag: cloudrun
+        dockerfile: cloudrun/dockerfile.cloudrun.calendar.maven
+        username: ${{ secrets.DOCKER_USERNAME }}
+        password: ${{ secrets.DOCKER_PASSWORD }} 

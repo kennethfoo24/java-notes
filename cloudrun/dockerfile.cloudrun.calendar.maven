@@ -1,0 +1,53 @@
+# Unless explicitly stated otherwise all files in this repository are licensed
+# under the Apache 2.0 License.
+#
+# This product includes software developed at Datadog (https://www.datadoghq.com/)
+# Copyright 2023 Datadog, Inc.
+FROM openjdk:11
+
+RUN apt-get update -y; apt-get install curl -y
+
+WORKDIR /home/apm-tutorial-java
+
+#RUN curl -Lo dd-java-agent.jar https://dtdg.co/latest-java-tracer 
+
+COPY calendar calendar/  
+WORKDIR /home/apm-tutorial-java/calendar
+
+# Copy datadog serverless-init and add datadog tracer jar file
+COPY --from=datadog/serverless-init:1 /datadog-init /app/datadog-init
+ADD 'https://dtdg.co/latest-java-tracer' /dd_tracer/java/dd-java-agent.jar
+
+ARG DD_GIT_REPOSITORY_URL
+ARG DD_GIT_COMMIT_SHA
+ENV DD_GIT_REPOSITORY_URL=${DD_GIT_REPOSITORY_URL} 
+ENV DD_GIT_COMMIT_SHA=${DD_GIT_COMMIT_SHA}
+
+# datadog unified service tagging
+ENV DD_SERVICE="cloudrun-java-calendar"
+ENV DD_ENV="cloudrun-java"
+ENV DD_VERSION=24
+# ENV DD_API_KEY=[Enter API Key]
+ENV DD_TRACE_ENABLED=true
+ENV DD_SITE='datadoghq.com'
+ENV DD_TRACE_PROPAGATION_STYLE='datadog'
+ENV DD_LOGS_ENABLED=true
+ENV DD_LOGS_INJECTION=true
+ENV DD_PROFILING_ENABLED=true
+ENV DD_RUNTIME_METRICS_ENABLED=true
+ENV DD_APPSEC_ENABLED=true
+ENV DD_TRACE_DEBUG=true
+ENV DD_TRACE_STARTUP_LOGS=true
+
+# Uncomment to compile with maven
+RUN ./mvnw clean
+RUN ./mvnw package
+
+#Uncomment to run without tracing
+#ENTRYPOINT ["java", "-jar", "target/calendar-0.0.1-SNAPSHOT.jar"]
+
+#Uncomment to run with tracing
+#ENTRYPOINT ["java", "-javaagent:../dd-java-agent.jar", "-Ddd.trace.sample.rate=1", "-jar" , "target/calendar-0.0.1-SNAPSHOT.jar"]  
+
+ENTRYPOINT ["/app/datadog-init"]
+CMD ["java", "-jar", "target/notes-0.0.1-SNAPSHOT.jar"]

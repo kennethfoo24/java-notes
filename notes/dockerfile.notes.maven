@@ -19,7 +19,7 @@ WORKDIR /home/apm-tutorial-java/notes
 RUN ./mvnw clean
 RUN ./mvnw package
 
-#Uncomment to run without tracing
+#Uncomment to run without tracingg
 #ENTRYPOINT ["java", "-jar", "target/notes-0.0.1-SNAPSHOT.jar"]
 
 #Uncomment to run with tracing
